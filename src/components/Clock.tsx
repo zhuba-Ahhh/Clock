@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const Clock: React.FC = () => {
   const [time, setTime] = useState(new Date());
@@ -7,19 +7,7 @@ const Clock: React.FC = () => {
   const secondRef = useRef<HTMLDivElement>(null);
   const timeRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const tick = setInterval(() => {
-      setTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(tick);
-  }, []);
-
-  useEffect(() => {
-    updateClockHands();
-  }, [time]);
-
-  const updateClockHands = () => {
+  const updateClockHands = useCallback(() => {
     if (!minuteRef.current || !hourRef.current || !secondRef.current || !timeRef.current) {
       return;
     }
@@ -34,10 +22,22 @@ const Clock: React.FC = () => {
     const formattedTime = time.toLocaleTimeString('en-US', { hour12: true });
     const [hour, minute, second] = formattedTime.split(':').map((part) => parseInt(part));
 
-    timeRef.current!.textContent = `${hour}:${minute.toString().padStart(2, '0')}:${second
+    timeRef.current.textContent = `${hour}:${minute.toString().padStart(2, '0')}:${second
       .toString()
-      .padStart(2, '0')}`
-  };
+      .padStart(2, '0')}`;
+  }, [minuteRef, hourRef, secondRef, timeRef, time]);
+
+  useEffect(() => {
+    const tick = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(tick);
+  }, []);
+
+  useEffect(() => {
+    updateClockHands();
+  }, [time, updateClockHands]);
 
   return (
     <div className="wrap">
