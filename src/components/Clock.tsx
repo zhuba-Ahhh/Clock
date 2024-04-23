@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useSpring, animated } from 'react-spring';
 
 const Clock: React.FC = () => {
   const [time, setTime] = useState(new Date());
@@ -39,6 +40,17 @@ const Clock: React.FC = () => {
     updateClockHands();
   }, [time, updateClockHands]);
 
+  const springConfig = {
+    mass: 1,
+    tension: 550,
+    friction: 120,
+  };
+  const animatedStyle = useSpring({
+    from: { scale: 1 },
+    to: { scale: 3 },
+    config: springConfig,
+  });
+
   return (
     <div className="wrap">
       <div className="clock-wrap">
@@ -46,7 +58,7 @@ const Clock: React.FC = () => {
           <circle cx="150" cy="150" r="150" />
         </svg>
         <div className="clock-root">
-          <div className="point" />
+          <animated.div className="point" style={animatedStyle} />
         </div>
         <div className="hand-wrap">
           <div className="hand minute-hand" ref={minuteRef} />
